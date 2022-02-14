@@ -1,0 +1,59 @@
+
+### Create Replication Instance
+# Navigate to DMS in the AWS console, and click Create replication instance. On the next screen, enter these values:
+
+Name: mySQLreplication
+Description: Ec2 to RDS
+# Leave Instance class and Engine version alone
+Allocated storage (GB): 50
+VPC: LabVPC
+# Uncheck the Publicly accessible box
+DatabaseSecurityGroup: RDS-SG
+
+# Click Create, and wait a few minutes for it to spin up.
+
+### Create Endpoints
+# Once it's ready, select Endpoints in the left-hand menu. We're going to make two.
+
+#### Create a Target Endpoint
+Select RDS DB instance: check
+RDS Instance: Database-1
+Source engine: MySQL
+Access to endpoint database: Provide access information manually
+Server name: database-1.cpkuikpztlyg.us-east-1.rds.amazonaws.com #AWS RDS endpoint
+Port: 3306
+User name: admin
+password: AwesomePassword!
+
+#### Create a Source Endpoint
+Select RDS DB instance: uncheck
+RDS Instance: source-DB
+Source engine: MySQL
+Access to endpoint database: Provide access information manually
+Server name: 10.0.1.21 (use PRIVATE IP of EC2-DB)
+Port: 3306
+User name: myuser
+password: AwesomePassword!
+
+
+### Create the Migration Task
+# From the lefthand menu, go to Database migration tasks , and then select the Create Database Migration Task button.
+
+# On the next screen, click Create task. Set the series of dropdowns like this:
+
+Task identifier: aurorareplicationtask
+Replication instance: Select the one we just created here
+Source database endpoint: my-db-source
+Target database endpoint: new-db
+Migration type: Migrate existing data
+Down in the Task settings section, change Include LOB columns in replication to Don't include LOB columns. Leave everything else.
+
+There's a Table mappings section below this, and within it a Selection rules area. Click Add new selection rule. Fill the resulting web form out like this:
+
+Schema: Enter a schema
+Schema name: classicmodels
+Table name: %
+Action: Include
+That's it for creating a task. Click the Create task button.
+
+Once AWS finishes creating the task, our data will start migrating.

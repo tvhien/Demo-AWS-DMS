@@ -1,0 +1,62 @@
+Create VPC:
+- VPC name: LabVPC
+- CIDR: 10.0.0.0/16
+- Public subnet_1: 10.0.1.0/16
+- Public subnet_2: 10.0.2.0/16
+- Private subnet_1: 10.0.101.0/16
+- Private subnet_1: 10.0.102.0/16
+- route table: [public, private]
+
+Security group-1:
+- name: default_LabVPC
+- desciption: default_LabVPC
+- VPC: LabVPC
+- Inbound rule:
+  - allow: all
+  - from: 10.0.0.0/16
+- Outbound rule:
+  - allow: all
+  - from: any
+
+Security group-2:
+- name: Ec2-source_DB_SG
+- desciption: source_DB_SG
+- VPC: LabVPC
+- Inbound rule:
+  - allow: 22
+  - from: any
+  - allow: 3306
+  - from: 10.0.0.0/16
+  - allow: 3306
+  - from: your_public_IP
+
+Security group-3:
+- name: RDS_SG
+- desciption: RDS_SG
+- VPC: LabVPC
+- Inbound rule:
+  - allow: 3306
+  - from: 10.0.0.0/16
+
+Create source Database demo:
+- image: ubuntu 20.04
+- Instance Type: t2.small
+- Network: LabVPC
+- Subnet: Public-1
+- Storage: 20
+- Security Group: [Ec2-source_DB_SG, default_LabVPC]
+
+Create RDS:
+- Engine: MySQL
+- Edition: MySQLCommunity
+- Version: 8.0.27
+- Template: Dev/Test
+- Availability and durability: Single DB instance
+- DB instance identifier: database-1
+- Master username: admin
+- Master password: AwesomePassword!
+- DB instance class: db.t3.small
+- Allocated storage: 50
+- Maximum storage threshold: 200
+- VPC: LabVPC
+- Other config: defaults
